@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from "d3";
 
-class Chart extends Component {
+class ArcChart extends Component {
   tau = Math.PI * 2;
 
   componentDidMount() {
@@ -78,7 +78,7 @@ class Chart extends Component {
   }
 };
 
-Chart.propTypes = {
+ArcChart.propTypes = {
   id: PropTypes.string,
   height: PropTypes.number,
   width: PropTypes.number,
@@ -89,7 +89,7 @@ Chart.propTypes = {
   percentComplete: PropTypes.number,
 };
 
-Chart.defaultProps = {
+ArcChart.defaultProps = {
 };
 
-export default Chart;
+export default ArcChart;

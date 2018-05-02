@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import Chart from './components/Chart'
+import ArcChart from './components/ArcChart'
 
 class App extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ class App extends Component {
     return (
       <div className="App">
       <button onClick={this.togglePercent}>Toggle Arc</button>
-        <Chart
+        <ArcChart
           id="myArc"
           height={400}
           width={400}
