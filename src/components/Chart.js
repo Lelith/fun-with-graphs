@@ -6,9 +6,23 @@ class Chart extends Component {
   tau = Math.PI * 2;
 
   componentDidMount() {
-     const context = this.setContext();
-     this.setBackground(context);
-     this.setForeground(context)
+    this.drawArc();
+  }
+
+  componentDidUpdate() {
+    this.redrawArc();
+  }
+
+  drawArc() {
+    const context = this.setContext();
+    this.setBackground(context);
+    this.setForeground(context)
+  }
+
+  redrawArc() {
+    const context= d3.select(`#${this.props.id}`);
+    context.remove();
+    this.drawArc();
   }
 
   setContext() {
@@ -47,13 +61,15 @@ class Chart extends Component {
   }
 
   arc() {
+    const {
+      innerRadius,
+      outerRadius
+    } = this.props;
     return d3.arc()
-      .innerRadius(100)
-      .outerRadius(110)
+      .innerRadius(innerRadius)
+      .outerRadius(outerRadius)
       .startAngle(0)
   }
-
-
 
   render(){
     return (
@@ -62,11 +78,11 @@ class Chart extends Component {
   }
 };
 
-
 Chart.propTypes = {
   id: PropTypes.string,
   height: PropTypes.number,
   width: PropTypes.number,
+  outerRadius: PropTypes.number,
   innerRadius: PropTypes.number,
   backgroundColor: PropTypes.string,
   foregroundColor: PropTypes.string,
