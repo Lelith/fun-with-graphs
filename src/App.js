@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import ArcChart from './components/ArcChart'
+import ArcChart from './components/ArcChart';
+import FunGraph from './components/FunGraph';
 
 class App extends Component {
   constructor(props) {
@@ -28,6 +29,8 @@ class App extends Component {
           backgroundColor="silver"
           percentComplete={this.state.percentComplete}
         />
+        <br/>
+        <FunGraph />
       </div>
     );
   }
