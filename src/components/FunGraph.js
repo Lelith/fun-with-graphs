@@ -1,60 +1,41 @@
 import React, { Component } from 'react';
 import * as d3 from "d3";
-
+import * as colorbrewer from "colorbrewer";
 
 export default class extends Component {
   componentDidMount() {
-    d3.json("data/tweets.json", (error, data) => {
+    d3.csv("data/worldcup.csv", (error, data) => {
       if(error){
         console.log(error);
       }else {
-        this.dataViz(data.tweets);
+        this.dataViz(data);
       }
     });
   }
 
   dataViz(incomingData) {
-    incomingData.forEach(d => {
-      d.impact = d.favorites.length + d.retweets.length;
-      d.tweetTime = new Date(d.timestamp);
-    });
-
-    const maxImpact = d3.max(incomingData, d => d.impact);
-    const startEnd = d3.extent(incomingData, d => d.tweetTime);
-    const timeRamp = d3.scaleTime().domain(startEnd).range([20,480]);
-    const yScale = d3.scaleLinear().domain([0,maxImpact]).range([0,460]);
-
-    const radiusScale = d3.scaleLinear()
-    .domain([0,maxImpact]).range([1,20]);
-
-    const colorScale = d3.scaleLinear()
-    .domain([0,maxImpact]).range(["white","purple"])
-
-    const filteredData = incomingData.filter(d => d.impact > 0)
-
-    var tweetG =  d3.select(this.refs.fungraph)
+    d3.select(this.refs.fungraph)
+      .append("g")
+      .attr("id", "teamsG")
+      .attr("transform", "translate(150,150)")
       .selectAll("g")
-      .data(incomingData, JSON.stringify)
+      .data(incomingData)
       .enter()
       .append("g")
-      .attr("transform", d =>
-        `translate( ${timeRamp(d.tweetTime)} , ${(480 - yScale(d.impact))} )`);
+      .attr("class", "overallG")
+      .attr("transform", (d,i) => "translate(" + (i * 50) + ", 0)");
 
-    tweetG.append("circle")
-        .attr("r", d => radiusScale(d.impact))
-        .style("fill", "purple")
-        .style("stroke", "black")
-        .style("stroke-width", "1px");
+      const teamG = d3.selectAll("g.overallG");
 
-    tweetG.append("text")
-          .text(d => `${d.user}-${d.tweetTime.getHours()}`);
+      teamG
+        .append("circle")
+        .attr("r", 20);
 
-    d3.selectAll("circle")
-      .data(filteredData, d =>JSON.stringify(d))
-      .exit()
-      .remove();
-
-
+      teamG
+        .append("text")
+          .style("text-anchor", "middle")
+          .attr("y", 30)
+          .text(d => d.team);
   }
 
   render() {
