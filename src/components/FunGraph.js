@@ -3,35 +3,38 @@ import * as d3 from "d3";
 
 export default class extends Component {
   componentDidMount() {
-    this.drawStuff();
+    d3.csv("data/cities.csv", (error,data) => {
+      if(error){
+        console.log(error);
+      }else {
+        this.dataViz(data);
+      }
+    });
   }
 
-  drawStuff(){
-    const someNumbers = [17, 82, 9, 500, 40];
-    const smallerNumbers = someNumbers.filter(
-      function(el) {return el <= 40 ? el : null});
-      console.log(smallerNumbers);
-    d3.select(this.refs.fungraph).selectAll("div")
-      .data(smallerNumbers)
+  dataViz(incomingData) {
+    console.log(incomingData)
+    const maxPopulation = d3.max(incomingData, d => parseInt(d.population));
+    console.log(maxPopulation);
+    const yScale = d3.scaleLinear().domain([0, maxPopulation]).range([0, 460]);
+
+    d3.select(this.refs.fungraph)
+      .selectAll("rect")
+      .data(incomingData)
       .enter()
-      .append('div')
-      .html(function(d){return d})
+      .append("rect")
+        .attr("x", (d,i) => i * 10)
+        .attr("width", 10)
+        .attr("height", d => yScale(parseInt(d.population)))
+        .attr("y", d => 100 - yScale(parseInt(d.population)))
+        .style("fill", "#FE9922")
+        .style("stroke", "#9A8B7A")
+        .style("stroke-width", "1px");
   }
 
   render() {
-
-    var divStyle = {
-      border: 'solid 1px purple',
-      width: '200px',
-      height: '50px',
-    };
-
-    var wrapperDivStyle = {
-      border: 'dashed 1px lime',
-    };
     return (
-      <div style={wrapperDivStyle} ref="fungraph">
-      </div>
+      <svg ref="fungraph"/>
     );
   }
 }

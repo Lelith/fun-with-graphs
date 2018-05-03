@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import ArcChart from './components/ArcChart';
 import FunGraph from './components/FunGraph';
 
 class App extends Component {
@@ -18,18 +17,6 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-      <button onClick={this.togglePercent}>Toggle Arc</button>
-        <ArcChart
-          id="myArc"
-          height={400}
-          width={400}
-          outerRadius={110}
-          innerRadius={100}
-          foregroundColor="deeppink"
-          backgroundColor="silver"
-          percentComplete={this.state.percentComplete}
-        />
-        <br/>
         <FunGraph />
       </div>
     );
