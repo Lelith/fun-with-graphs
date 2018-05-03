@@ -29,17 +29,22 @@ export default class extends Component {
     var colorScale = d3.scaleLinear()
     .domain([0,maxImpact]).range(["white","purple"])
 
-    d3.select(this.refs.fungraph)
+    var tweetG =  d3.select(this.refs.fungraph)
       .selectAll("g")
       .data(incomingData)
       .enter()
-      .append("circle")
+      .append("g")
+      .attr("transform", d =>
+        `translate( ${timeRamp(d.tweetTime)} , ${(480 - yScale(d.impact))} )`);
+
+    tweetG.append("circle")
         .attr("r", d => radiusScale(d.impact))
-        .attr("cx", d => timeRamp(d.tweetTime))
-        .attr("cy", d => 480 - yScale(d.impact))
-        .style("fill", d => colorScale(d.impact))
+        .style("fill", "purple")
         .style("stroke", "black")
         .style("stroke-width", "1px");
+
+    tweetG.append("text")
+      .text(d => `${d.user}-${d.tweetTime.getHours()}`);
   }
 
   render() {
