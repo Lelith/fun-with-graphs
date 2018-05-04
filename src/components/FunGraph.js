@@ -51,6 +51,14 @@ export default class extends Component {
           .style("text-anchor", "middle")
           .attr("y", 30)
           .text(d => d.team);
+
+      teamG
+        .on("mouseover", this.highlightRegion);
+  }
+
+  highlightRegion(d) {
+    d3.selectAll("g.overallG").select("circle")
+      .attr("class", p => p.region === d.region ? "active" : "inactive");
   }
 
   buttonClick(datapoint) {
