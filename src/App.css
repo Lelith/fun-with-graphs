@@ -36,10 +36,10 @@ circle {
   stroke-width: 1px;
 }
 circle.active {
-  fill: #FE9922;
+  fill: #484767;
 }
 circle.inactive {
-  fill: #C4B9AC;
+  fill: #AEACC7;
 }
 
 @keyframes App-logo-spin {
