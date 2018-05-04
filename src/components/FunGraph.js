@@ -44,7 +44,14 @@ export default class extends Component {
 
       teamG
         .append("circle")
-        .attr("r", 20);
+        .attr("r", 0)
+        .transition()
+          .delay((d,i) => i *100)
+          .duration(500)
+          .attr("r", 40)
+        .transition()
+          .duration(500)
+          .attr("r",20)
 
       teamG
         .append("text")
