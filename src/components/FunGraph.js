@@ -75,6 +75,7 @@ export default class extends Component {
       .domain([0, maxValue]).range([2,20]);
 
     d3.selectAll("g.overallG").select("circle")
+      .transition().duration(1000)
       .attr("r", d => radiusScale(d[datapoint]));
   }
 
