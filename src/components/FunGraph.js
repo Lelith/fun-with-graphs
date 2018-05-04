@@ -53,12 +53,20 @@ export default class extends Component {
           .text(d => d.team);
 
       teamG
-        .on("mouseover", this.highlightRegion);
+        .on("mouseover", this.highlightRegions);
+
+      teamG
+        .on("mouseout", ( )=> {
+          d3.selectAll("g.overallG").select("circle")
+          .classed("inactive", false)
+          .classed("active", false)
+        });
   }
 
-  highlightRegion(d) {
+  highlightRegions(d){
     d3.selectAll("g.overallG").select("circle")
       .attr("class", p => p.region === d.region ? "active" : "inactive");
+
   }
 
   buttonClick(datapoint) {
