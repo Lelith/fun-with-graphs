@@ -3,12 +3,27 @@ import * as d3 from "d3";
 import * as colorbrewer from "colorbrewer";
 
 export default class extends Component {
+  constructor(props) {
+    super(props);
+
+    this.buttonClick = this.buttonClick.bind(this);
+    this.state= {
+      loading: true,
+      incomingData: 0,
+    };
+  }
+
   componentDidMount() {
     d3.csv("data/worldcup.csv", (error, data) => {
       if(error){
         console.log(error);
-      }else {
-        this.dataViz(data);
+        return;
+      } else {
+        this.setState({
+          incomingData: data,
+          loading: false
+        });
+        this.dataViz(this.state.incomingData);
       }
     });
   }
@@ -38,9 +53,45 @@ export default class extends Component {
           .text(d => d.team);
   }
 
+  buttonClick(datapoint) {
+    const maxValue =d3.max(this.state.incomingData, d => parseFloat(d[datapoint]));
+    const radiusScale = d3.scaleLinear()
+      .domain([0, maxValue]).range([2,20]);
+
+    d3.selectAll("g.overallG").select("circle")
+      .attr("r", d => radiusScale(d[datapoint]));
+  }
+
   render() {
+    var dataKeys = [1,2];
+    if(!this.state.loading){
+      const incomingData = this.state.incomingData;
+      dataKeys = Object.keys(incomingData[0])
+      .filter(d => d !== "team" && d !== "region");
+    }
+
     return (
-      <svg width="100%" height="100vh" ref="fungraph"/>
+      <div>
+        {this.state.loading && (
+          <p>awaiting data</p>
+        )}
+        {!this.state.loading && (
+          <div>
+            <svg width="100%" height="50vh" ref="fungraph"/>
+            <div className="controls">
+              {dataKeys.map(d =>
+               <button
+                onClick={() => this.buttonClick(d)}
+                className="teams"
+                key={`control-${d}`}
+               >
+                {d}
+               </button>
+             )}
+           </div>
+          </div>
+        )}
+      </div>
     );
   }
 }
