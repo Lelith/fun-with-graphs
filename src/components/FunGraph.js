@@ -1,108 +1,51 @@
 import React, { Component } from 'react';
 import * as d3 from "d3";
-import * as colorbrewer from "colorbrewer";
+
 
 export default class extends Component {
-  constructor(props) {
-    super(props);
-
-    this.buttonClick = this.buttonClick.bind(this);
-    this.state= {
-      loading: true,
-      incomingData: 0,
-    };
-  }
 
   componentDidMount() {
-    d3.csv("data/worldcup.csv", (error, data) => {
-      if(error){
-        console.log(error);
-        return;
-      } else {
-        this.setState({
-          incomingData: data,
-          loading: false
-        });
-        this.dataViz(this.state.incomingData);
-      }
-    });
+    this.dataViz();
   }
 
-  dataViz(incomingData) {
-    d3.select("svg")
-          .append("g")
-          .attr("id", "teamsG")
-            .attr("transform", "translate(50,100)")
-          .selectAll("g")
-          .data(incomingData)
-          .enter()
-          .append("g")
-            .attr("class", "overallG")
-            .attr("transform", (d, i) =>`translate(${(i * 50)}, 0)`);
+  dataViz() {
+    const scatterData = [{friends: 5, salary: 22000},
+       {friends: 3, salary: 18000}, {friends: 10, salary: 88000},
+       {friends: 0, salary: 180000}, {friends: 27, salary: 56000},
+       {friends: 8, salary: 74000}];
 
-        var teamG = d3.selectAll("g.overallG");
+     const xExtent = d3.extent(scatterData, d => d.salary)
+     const yExtent = d3.extent(scatterData, d => d.friends)
+     const xScale = d3.scaleLinear().domain(xExtent).range([0,500]);
+     const yScale = d3.scaleLinear().domain(yExtent).range([0,500]);
 
-        teamG
-          .append("circle").attr("r", 0)
-          .transition()
-            .delay((d,i) => i * 100)
-            .duration(500)
-            .attr("r", 40)
-          .transition()
-            .duration(500)
-            .attr("r", 20);
+    const xAxis = d3.axisBottom().scale(xScale)
+    .tickSize(500).ticks(4)
+    const yAxis = d3.axisRight().scale(yScale)
+          .ticks(16).tickSize(500)
 
-        teamG
-          .append("text")
-          .style("text-anchor", "middle")
-          .attr("y", 30)
-              .text(d => d.team)
-  }
+    d3.select(this.refs.fungraph).selectAll("circle")
+      .data(scatterData).enter()
+      .append("circle")
+      .attr("r", 5)
+      .attr("cx", d => xScale(d.salary))
+      .attr("cy", d => yScale(d.friends));
 
-  buttonClick(datapoint) {
-    const maxValue = d3.max(this.state.incomingData, d => parseFloat(d[datapoint]));
+    d3.select(this.refs.fungraph)
+      .append("g")
+      .attr("id", "xAxisG")
+      .call(xAxis);
 
-    const colorQuantize = d3.scaleQuantize()
-    .domain([0,maxValue]).range(colorbrewer.Reds[5]);
-
-    const radiusScale = d3.scaleLinear()
-      .domain([0, maxValue]).range([2,20]);
-
-    d3.selectAll("g.overallG").select("circle")
-      .transition().duration(1000)
-      .attr("r", d => radiusScale(d[datapoint]))
-      .style("fill", d => colorQuantize(d[datapoint]));
+    d3.select(this.refs.fungraph)
+      .append("g")
+      .attr("id", "yAxisG")
+      .call(yAxis);
   }
 
   render() {
-    var dataKeys = [1,2];
-    if(!this.state.loading){
-      const incomingData = this.state.incomingData;
-      dataKeys = Object.keys(incomingData[0])
-      .filter(d => d !== "team" && d !== "region");
-    }
-
     return (
       <div>
-        {this.state.loading && (
-          <p>awaiting data</p>
-        )}
-        {!this.state.loading && (
-          <div>
-            <svg width="100%" height="50vh" ref="fungraph"/>
-            <div className="controls">
-              {dataKeys.map(d =>
-               <button
-                onClick={() => this.buttonClick(d)}
-                className="teams"
-                key={`control-${d}`}
-               >
-                {d}
-               </button>
-             )}
-           </div>
-          </div>
-        )}
+        <svg width="100%" height="100vh" ref="fungraph"/>
       </div>
     );
   }
