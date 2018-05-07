@@ -57,39 +57,21 @@ export default class extends Component {
           .style("text-anchor", "middle")
           .attr("y", 30)
               .text(d => d.team)
-
-      teamG
-        .on("mouseover", this.highlightRegions);
-
-      teamG
-        .on("mouseout",this.unHighlightRegions);
-  }
-
-  highlightRegions(d, i){
-    d3.select(this).select("text").classed("active", true).attr("y", 10);
-       d3.selectAll("g.overallG").select("circle")
-          .each(function (p) {
-            p.region == d.region ?
-             d3.select(this).classed("active", true) :
-             d3.select(this).classed("inactive", true);
-          });
-    this.parentElement.appendChild(this);
-  }
-
-  unHighlight() {
-    d3.selectAll("g.overallG").select("circle").attr("class", "");
-    d3.selectAll("g.overallG").select("text")
-      .classed("active", false).attr("y", 30);
   }
 
   buttonClick(datapoint) {
-    const maxValue =d3.max(this.state.incomingData, d => parseFloat(d[datapoint]));
+    const maxValue = d3.max(this.state.incomingData, d => parseFloat(d[datapoint]));
+
+    const colorQuantize = d3.scaleQuantize()
+    .domain([0,maxValue]).range(colorbrewer.Reds[5]);
+
     const radiusScale = d3.scaleLinear()
       .domain([0, maxValue]).range([2,20]);
 
     d3.selectAll("g.overallG").select("circle")
       .transition().duration(1000)
-      .attr("r", d => radiusScale(d[datapoint]));
+      .attr("r", d => radiusScale(d[datapoint]))
+      .style("fill", d => colorQuantize(d[datapoint]));
   }
 
   render() {
