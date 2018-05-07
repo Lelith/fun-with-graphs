@@ -5,42 +5,75 @@ import * as d3 from "d3";
 export default class extends Component {
 
   componentDidMount() {
-    this.dataViz();
+    d3.csv("data/tweetdata.csv", this.dataViz);
   }
 
-  dataViz() {
-    const scatterData = [{friends: 5, salary: 22000},
-       {friends: 3, salary: 18000}, {friends: 10, salary: 88000},
-       {friends: 0, salary: 180000}, {friends: 27, salary: 56000},
-       {friends: 8, salary: 74000}];
+  dataViz(data) {
+    const blue = "#5eaec5", green = "#92c463", orange = "#fe9a22";
 
-     const xExtent = d3.extent(scatterData, d => d.salary)
-     const yExtent = d3.extent(scatterData, d => d.friends)
-     const xScale = d3.scaleLinear().domain(xExtent).range([0,500]);
-     const yScale = d3.scaleLinear().domain(yExtent).range([0,500]);
+    const xScale = d3.scaleLinear().domain([1,10.5]).range([20,480]);
 
-    const xAxis = d3.axisBottom().scale(xScale)
-    .tickSize(500).ticks(4)
-    const yAxis = d3.axisRight().scale(yScale)
-          .ticks(16).tickSize(500)
+    const yScale = d3.scaleLinear().domain([0,35]).range([480,20]);
 
-    d3.select(this.refs.fungraph).selectAll("circle")
-      .data(scatterData).enter()
+    const xAxis = d3.axisBottom()
+     .scale(xScale)
+     .tickSize(480)
+     .tickValues([1,2,3,4,5,6,7,8,9,10]);
+
+    const yAxis = d3.axisRight()
+     .scale(yScale)
+     .ticks(10)
+     .tickSize(480);
+
+     d3.select("svg").append("g").attr("id", "xAxisG").call(xAxis);
+     d3.select("svg").append("g").attr("id", "yAxisG").call(yAxis);
+
+     d3.select("svg").selectAll("circle.favorites")
+      .data(data)
+      .enter()
       .append("circle")
+        .attr("class", "favorites")
+        .attr("r", 5)
+        .attr("cx", d => xScale(d.day))
+        .attr("cy", d => yScale(d.favorites))
+        .style("fill", orange);
+
+    d3.select("svg").selectAll("circle.tweets")
+      .data(data)
+      .enter()
+      .append("circle")
+       .attr("class", "tweets")
+       .attr("r", 5)
+       .attr("cx", d => xScale(d.day))
+       .attr("cy", d => yScale(d.tweets))
+       .style("fill", blue)
+
+  d3.select("svg").selectAll("circle.retweets")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("class", "retweets")
       .attr("r", 5)
-      .attr("cx", d => xScale(d.salary))
-      .attr("cy", d => yScale(d.friends));
+      .attr("cx", d => xScale(d.day))
+      .attr("cy", d => yScale(d.retweets))
+      .style("fill", green)
 
-    d3.select(this.refs.fungraph)
-      .append("g")
-      .attr("id", "xAxisG")
-      .call(xAxis);
+  const lambdaXScale = d => xScale(d.day)
 
-    d3.select(this.refs.fungraph)
-      .append("g")
-      .attr("id", "yAxisG")
-      .call(yAxis);
+  const tweetLine = d3.line()
+    .x(lambdaXScale)
+    .y(d => yScale(d.tweets));
+
+  d3.select("svg")
+    .append("path")
+    .attr("d", tweetLine(data))
+    .attr("fill", "none")
+    .attr("stroke", blue)
+    .attr("stroke-width", 2)
+
   }
+
+
 
   render() {
     return (
