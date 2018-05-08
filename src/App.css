@@ -22,11 +22,7 @@
   font-size: large;
 }
 
-text {
-  font-size: 10px;
-  text-anchor: middle;
-  fill: #4f442b;
-}
+
 g > text.active {
   font-size: 30px;
 }

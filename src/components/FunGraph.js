@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import * as d3 from "d3";
-
+import { legendColor } from 'd3-svg-legend';
+import * as d3 from 'd3';
 export default class FunGraph extends Component {
   constructor(props) {
     super(props);
@@ -22,6 +22,13 @@ export default class FunGraph extends Component {
     const fillScale = d3.scaleOrdinal()
       .domain(["titanic", "avatar", "akira", "frozen", "deliverance", "avengers"])
       .range(["#fcd88a", "#cf7c1c", "#93c464", "#75734F", "#5eafc6", "#41a368"]);
+
+    // adding legends
+    const legendA = legendColor().scale(fillScale);
+    d3.select(this.refs.fungraph)
+      .append("g")
+        .attr("transform", "translate(500, 0)")
+        .call(legendA);
 
     const xScale = d3.scaleLinear().domain([ 1, 10 ]).range([ 20, 470 ]);
     const yScale = d3.scaleLinear().domain([ 0, 55 ]).range([ 470, 20 ]);
@@ -55,6 +62,8 @@ export default class FunGraph extends Component {
             .attr("stroke-width", 1);
       }
     });
+
+
   }
 
   simpleStacking( lineData, lineKey) {
@@ -75,7 +84,7 @@ export default class FunGraph extends Component {
   render() {
     return (
       <div>
-        <svg width="600" height="600" ref="fungraph"/>
+        <svg width="100%" height="600" ref="fungraph"/>
       </div>
     );
   }
