@@ -7,7 +7,7 @@ export default class FunGraph extends Component {
   }
 
   componentDidMount() {
-    d3.json("data/tweets.json", (error, data) => {
+    d3.csv("data/movies.csv", (error, data) => {
       if(error){
         console.log(error);
         return;
@@ -18,41 +18,50 @@ export default class FunGraph extends Component {
   }
 
   dataViz(data) {
-    var nestedTweets = d3.nest()
-      .key(d=> d.user)
-      .entries(data.tweets);
 
-    nestedTweets.forEach(d => {
-      d.numTweets = d.values.length;
-      d.numFavorites = d3.sum(d.values, p => p.favorites.length);
-      d.numRetweets = d3.sum(d.values, p => p.retweets.length);
-   });
+    const xScale = d3.scaleLinear().domain([0, 10]).range([0, 500]);
+    const yScale = d3.scaleLinear().domain([0, 60]).range([480, 0]);
+    const heightScale = d3.scaleLinear().domain([0, 60]).range([0, 480]);
 
+    var movies = ["titanic", "avatar", "akira", "frozen", "deliverance", "avengers"];
 
-    const pieChart = d3.pie()
-      .value(d => d.numTweets);
+    var fillScale = d3.scaleOrdinal()
+    .domain(movies)
+    .range(["powderblue", "royalblue", "orangered", "MediumTurquoise", "orchid", "springgreen"]);
 
-    const myPie = pieChart(nestedTweets)
+    const xAxis = d3.axisBottom()
+        .scale(xScale)
+        .tickSize(500)
+        .tickValues([1,2,3,4,5,6,7,8,9,10]);
 
-    const newArc = d3.arc();
-    newArc
-    .innerRadius(50)
-    .outerRadius(100);
-
-    const fillScale = d3.scaleOrdinal()
-    .range(["silver", "aquamarine", "blueviolet", "hotpink"]);
+    const yAxis = d3.axisRight()
+      .scale(yScale)
+      .ticks(10)
+      .tickSize(520);
 
     d3.select(this.refs.fungraph)
-      .append("g")
-        .attr("transform", "translate(250,250)")
-      .selectAll("path")
-      .data(myPie)
-      .enter()
-      .append("path")
-        .attr("d", newArc)
-        .style("fill", (d,i) => fillScale(i))
-        .style("stroke", "black")
-        .style("stroke-width", "2px");
+    .append("g").attr("id", "yAxisG").call(yAxis)
+    .append("g").attr("id", "xAxisG").call(xAxis);
+
+    const stackLayout = d3.stack().keys(movies);
+
+    d3.select(this.refs.fungraph).selectAll("g.bar")
+    .data(stackLayout(data))
+    .enter()
+    .append("g")
+      .attr("class", "bar")
+      .each(function(d) {
+        d3.select(this).selectAll("rect")
+          .data(d)
+          .enter()
+          .append("rect")
+            .attr("x", (p,q) => xScale(q) + 30)
+            .attr("y", p => yScale(p[1]))
+            .attr("height", p => heightScale(p[1] - p[0]))
+            .attr("width", 40)
+            .style("fill", fillScale(d.key));
+      });
+
   }
 
   render() {
