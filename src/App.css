@@ -23,15 +23,21 @@
 }
 
 
-g > text.active {
-  font-size: 30px;
+rect.overlay {
+       opacity: 0;
 }
-
-circle.active {
-  fill: #484767;
+     rect.selection {
+       fill: #FE9922;
+       opacity: 0.5;
 }
-circle.inactive {
-  fill: #AEACC7;
+     rect.handle {
+       fill: #FE9922;
+       opacity: 0.25;
+}
+     path.countries {
+        stroke-width: 1;
+        stroke: #75739F;
+        fill: #5EAFC6;
 }
 
 @keyframes App-logo-spin {

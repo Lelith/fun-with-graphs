@@ -4,70 +4,76 @@ import * as d3 from 'd3';
 export default class FunGraph extends Component {
   constructor(props) {
     super(props);
+
+    this.createBarChart = this.createBarChart.bind(this)
   }
 
   componentDidMount() {
-    d3.csv("data/movies.csv", (error, data) => {
-      if(error){
-        console.log(error);
-        return;
-      } else {
-        this.dataViz(data);
-      }
-    });
+      this.createBarChart();
   }
 
-  dataViz(data) {
+  componentDidUpdate(){
+    this.createBarChart();
+  }
 
-    const xScale = d3.scaleLinear().domain([0, 10]).range([0, 500]);
-    const yScale = d3.scaleLinear().domain([0, 60]).range([480, 0]);
-    const heightScale = d3.scaleLinear().domain([0, 60]).range([0, 480]);
+  createBarChart() {
+    const {
+      data,
+      size,
+      colorScale,
+    } = this.props;
 
-    var movies = ["titanic", "avatar", "akira", "frozen", "deliverance", "avengers"];
+    const node = this.refs.fungraph;
 
-    var fillScale = d3.scaleOrdinal()
-    .domain(movies)
-    .range(["powderblue", "royalblue", "orangered", "MediumTurquoise", "orchid", "springgreen"]);
+    // draw legends
+    const legend = legendColor()
+      .scale(colorScale)
+      .labels(["Wave 1", "Wave 2", "Wave 3", "Wave 4"]);
 
-    const xAxis = d3.axisBottom()
-        .scale(xScale)
-        .tickSize(500)
-        .tickValues([1,2,3,4,5,6,7,8,9,10]);
+    d3.select(node)
+      .selectAll("g.legend")
+      .data([0])
+      .enter()
+      .append("g")
+        .attr("class", "legend")
+        .call(legend)
+        .attr("transform", "translate(" + (size[0] - 100) + ", 20)");
 
-    const yAxis = d3.axisRight()
-      .scale(yScale)
-      .ticks(10)
-      .tickSize(520);
+    // draw bars
+    const dataMax = d3.max(data);
+    const yScale = d3.scaleLinear()
+      .domain([0, dataMax])
+      .range([0, size[1]])
 
-    d3.select(this.refs.fungraph)
-    .append("g").attr("id", "yAxisG").call(yAxis)
-    .append("g").attr("id", "xAxisG").call(xAxis);
+    d3.select(node)
+      .selectAll("rect.backgroundColor")
+      .data(data)
+      .enter()
+      .append("rect")
+        .attr("class", "bar");
 
-    const stackLayout = d3.stack().keys(movies);
+    d3.select(node)
+      .selectAll("rect.bar")
+      .data(data)
+      .exit()
+      .remove()
 
-    d3.select(this.refs.fungraph).selectAll("g.bar")
-    .data(stackLayout(data))
-    .enter()
-    .append("g")
-      .attr("class", "bar")
-      .each(function(d) {
-        d3.select(this).selectAll("rect")
-          .data(d)
-          .enter()
-          .append("rect")
-            .attr("x", (p,q) => xScale(q) + 30)
-            .attr("y", p => yScale(p[1]))
-            .attr("height", p => heightScale(p[1] - p[0]))
-            .attr("width", 40)
-            .style("fill", fillScale(d.key));
-      });
-
+    d3.select(node)
+      .selectAll("rect.bar")
+      .data(data)
+      .style("fill", "#fe9922")
+      .attr("x", (d,i) => (i * 35))
+      .attr("y", d => size[1] - yScale(d))
+      .attr("height", d => yScale(d))
+      .attr("width", 25)
+      .style("stroke", "black")
+      .style("stroke-opacity", 0.25)
   }
 
   render() {
     return (
       <div>
-        <svg width="100%" height="600" ref="fungraph"/>
+        <svg width={this.props.size[0]} height={this.props.size[1]} ref="fungraph"/>
       </div>
     );
   }
