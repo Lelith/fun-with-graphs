@@ -40,7 +40,8 @@ export default class FunGraph extends Component {
         .attr("transform", "translate(" + (size[0] - 100) + ", 20)");
 
     // draw bars
-    const dataMax = d3.max(data);
+    const dataMax = d3.max(data.map(d => d3.sum(d.data)));
+    const barWidth = (size[0] - data.length*5)/ data.length;
     const yScale = d3.scaleLinear()
       .domain([0, dataMax])
       .range([0, size[1]])
@@ -62,12 +63,13 @@ export default class FunGraph extends Component {
       .selectAll("rect.bar")
       .data(data)
       .style("fill", "#fe9922")
-      .attr("x", (d,i) => (i * 35))
-      .attr("y", d => size[1] - yScale(d))
-      .attr("height", d => yScale(d))
-      .attr("width", 25)
+      .attr("x", (d,i) => i * (barWidth+5))
+      .attr("y", (d,i) => size[1] - yScale(d3.sum(d.data)))
+      .attr("height", (d,i) => yScale(d3.sum(d.data)))
+      .attr("width", barWidth)
+      .style("fill", (d,i) => colorScale(d.launchday))
       .style("stroke", "black")
-      .style("stroke-opacity", 0.25)
+      .style("stroke-opacity", 0.25);
   }
 
   render() {
