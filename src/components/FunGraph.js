@@ -1,81 +1,71 @@
 import React, { Component } from 'react';
 import { legendColor } from 'd3-svg-legend';
 import * as d3 from 'd3';
+
 export default class FunGraph extends Component {
   constructor(props) {
     super(props);
 
-    this.createBarChart = this.createBarChart.bind(this)
+    this.createChart = this.creatChart.bind(this)
   }
 
   componentDidMount() {
-      this.createBarChart();
+      this.createChart();
   }
 
   componentDidUpdate(){
-    this.createBarChart();
+    this.createChart();
   }
 
-  createBarChart() {
+
+  creatChart() {
     const {
       data,
       size,
       colorScale,
     } = this.props;
 
-    const node = this.refs.fungraph;
 
-    // draw legends
-    const legend = legendColor()
-      .scale(colorScale)
-      .labels(["Wave 1", "Wave 2", "Wave 3", "Wave 4"]);
+    const
+      node = d3.select(this.refs.fungraph),
+      cumulativeTrades = data['cumulative-grid-trades'],
+      areas = data.areas,
+      width = size[0],
+      height = size[1],
+      innerRadius = 180,
+      outerRadius = Math.min(width, height) / 2,
+      g = node.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+      xScaleOffset = Math.PI * 75/180;
 
-    d3.select(node)
-      .selectAll("g.legend")
-      .data([0])
-      .enter()
-      .append("g")
-        .attr("class", "legend")
-        .call(legend)
-        .attr("transform", "translate(" + (size[0] - 100) + ", 20)");
+      cumulativeTrades.map((area, i) => {
+        var t = 0;
+        for(var entry in area){
+          if(entry !=='Label'){
+              console.log(area[entry]);
+              t += area[entry];
+              console.log(t);
+          }
+          area.total = t;
+        }
+      })
 
-    // draw bars
-    const dataMax = d3.max(data.map(d => d3.sum(d.data)));
-    const barWidth = (size[0] - data.length*5)/ data.length;
-    const yScale = d3.scaleLinear()
-      .domain([0, dataMax])
-      .range([0, size[1]])
+      console.log(cumulativeTrades);
 
-    d3.select(node)
-      .selectAll("rect.backgroundColor")
-      .data(data)
-      .enter()
-      .append("rect")
-        .attr("class", "bar");
 
-    d3.select(node)
-      .selectAll("rect.bar")
-      .data(data)
-      .exit()
-      .remove()
+    const x = d3.scaleBand()
+      .range([xScaleOffset, 2 * Math.PI + xScaleOffset])
+      .align(0)
+      .domain(cumulativeTrades.map(d=>{return d.Label}));
 
-    d3.select(node)
-      .selectAll("rect.bar")
-      .data(data)
-      .style("fill", "#fe9922")
-      .attr("x", (d,i) => i * (barWidth+5))
-      .attr("y", (d,i) => size[1] - yScale(d3.sum(d.data)))
-      .attr("height", (d,i) => yScale(d3.sum(d.data)))
-      .attr("width", barWidth)
-      .style("fill", (d,i) => colorScale(d.launchday))
-      .style("stroke", "black")
-      .style("stroke-opacity", 0.25);
-  }
+    const y = d3.scaleLinear()
+    .range([innerRadius, outerRadius]);
+
+}
 
   render() {
     return (
       <div>
-        <svg width={this.props.size[0]} height={this.props.size[1]} ref="fungraph"/>
+        <svg ref="fungraph"/>
       </div>
     );
   }
