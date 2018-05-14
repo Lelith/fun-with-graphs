@@ -41,9 +41,11 @@ export default class FunGraph extends Component {
         var t = 0;
         for(var entry in area){
           if(entry !=='Label'){
-              console.log(area[entry]);
+            if(area[entry] < 0){
+              area.min = area[entry];
+            } else {
               t += area[entry];
-              console.log(t);
+            }
           }
           area.total = t;
         }
@@ -52,13 +54,17 @@ export default class FunGraph extends Component {
       console.log(cumulativeTrades);
 
 
-    const x = d3.scaleBand()
+    const xScale = d3.scaleBand()
       .range([xScaleOffset, 2 * Math.PI + xScaleOffset])
       .align(0)
       .domain(cumulativeTrades.map(d=>{return d.Label}));
 
-    const y = d3.scaleLinear()
-    .range([innerRadius, outerRadius]);
+    const yScale = d3.scaleLinear()
+    .range([innerRadius, outerRadius])
+    .domain([
+      d3.min(cumulativeTrades, d=> {return d.min}),
+      d3.max(cumulativeTrades,d=>{return d.total})
+    ]);
 
 }
 
