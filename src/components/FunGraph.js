@@ -22,14 +22,13 @@ export default class FunGraph extends Component {
     const {
       data,
       size,
-      colorScale,
     } = this.props;
 
 
     const
       node = d3.select(this.refs.fungraph),
       cumulativeTrades = data['cumulative-grid-trades'],
-      areas = data.areas,
+      areaNames = data.areas,
       width = size[0],
       height = size[1],
       innerRadius = 180,
@@ -60,11 +59,27 @@ export default class FunGraph extends Component {
       .domain(cumulativeTrades.map(d=>{return d.Label}));
 
     const yScale = d3.scaleLinear()
-    .range([innerRadius, outerRadius])
-    .domain([
-      d3.min(cumulativeTrades, d=> {return d.min}),
-      d3.max(cumulativeTrades,d=>{return d.total})
-    ]);
+      .range([innerRadius, outerRadius])
+      .domain([
+        d3.min(cumulativeTrades, d => {return d.min}),
+        d3.max(cumulativeTrades, d => {return d.total})
+      ]);
+
+    const colorScale = scaleLinear()
+        .domain(areaNames)
+        .interpolate(interpolateRgb)
+        .range([
+            '#a666ff',
+            '#35d7c6',
+          ])
+
+
+    g.append("g")
+      .selectAll("g")
+      .data(d3.stack().keys(areaNames)(cumulativeTrades))
+      .enter()
+      .append("g")
+        .attr("fill", d => )
 
 }
 

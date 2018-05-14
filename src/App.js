@@ -67,22 +67,6 @@ const appdata = {
     ],
   }
 
-
-const colorScale = scaleLinear()
-  .domain([
-    'Cell Tower',
-    'House 1',
-    'House 2',
-    'House 3',
-    'House 4',
-    'House 5'
-  ])
-  .interpolate(interpolateRgb)
-  .range([
-      '#a666ff',
-      '#35d7c6',
-    ])
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -94,7 +78,6 @@ class App extends Component {
     return (
       <div className="App">
         <FunGraph
-          colorScale={colorScale}
           data={appdata}
           size={[950,600]}
          />
