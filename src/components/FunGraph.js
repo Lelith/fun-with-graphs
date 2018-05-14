@@ -34,7 +34,8 @@ export default class FunGraph extends Component {
       innerRadius = 180,
       outerRadius = Math.min(width, height) / 2,
       g = node.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
-      xScaleOffset = Math.PI * 75/180;
+      xScaleOffset = Math.PI * 75/180,
+      stackLayout = d3.stack().keys(areaNames);
 
       cumulativeTrades.map((area, i) => {
         var t = 0;
@@ -65,21 +66,17 @@ export default class FunGraph extends Component {
         d3.max(cumulativeTrades, d => {return d.total})
       ]);
 
-    const colorScale = scaleLinear()
+    const colorScale = d3.scaleOrdinal()
         .domain(areaNames)
-        .interpolate(interpolateRgb)
-        .range([
-            '#a666ff',
-            '#35d7c6',
-          ])
+        .range(d3.schemeBuPu);
 
 
     g.append("g")
       .selectAll("g")
-      .data(d3.stack().keys(areaNames)(cumulativeTrades))
+      .data(stackLayout(cumulativeTrades))
       .enter()
       .append("g")
-        .attr("fill", d => )
+        .attr("fill", d => colorScale(d.key));
 
 }
 
