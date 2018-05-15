@@ -31,9 +31,9 @@ export default class FunGraph extends Component {
       areaNames = data.areas,
       width = size[0],
       height = size[1],
-      innerRadius = 180,
-      outerRadius = Math.min(width, height) / 2,
-      g = node.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+      innerRadius = 80,
+      outerRadius = Math.min(width, height) / 2.5,
+      g = node.append("g").attr("transform", "translate(" + width / 2 + "," + height * 0.69 + ")"),
       xScaleOffset = Math.PI * 75/180,
       stackLayout = d3.stack().keys(areaNames);
 
@@ -41,34 +41,24 @@ export default class FunGraph extends Component {
         var t = 0;
         for(var entry in area){
           if(entry !=='Label'){
-            if(area[entry] < 0){
-              area.min = area[entry];
-            } else {
               t += area[entry];
-            }
           }
           area.total = t;
         }
       })
 
-      console.log(cumulativeTrades);
-
-
     const xScale = d3.scaleBand()
-      .range([xScaleOffset, 2 * Math.PI + xScaleOffset])
+      .range([0, 2 * Math.PI])
       .align(0)
       .domain(cumulativeTrades.map(d=>{return d.Label}));
 
     const yScale = d3.scaleLinear()
       .range([innerRadius, outerRadius])
-      .domain([
-        d3.min(cumulativeTrades, d => {return d.min}),
-        d3.max(cumulativeTrades, d => {return d.total})
-      ]);
+      .domain([0, d3.max(cumulativeTrades, function(d) { return d.total; })]);
 
     const colorScale = d3.scaleOrdinal()
         .domain(areaNames)
-        .range(d3.schemeBuPu);
+        .range(d3.schemeCategory20);
 
 
     g.append("g")
@@ -76,14 +66,24 @@ export default class FunGraph extends Component {
       .data(stackLayout(cumulativeTrades))
       .enter()
       .append("g")
-        .attr("fill", d => colorScale(d.key));
-
+        .attr("fill", d => colorScale(d.key))
+      .selectAll("path")
+      .data(function(d) { console.log(d); return d; })
+      .enter()
+      .append("path")
+        .attr("d", d3.arc()
+          .innerRadius(function(d) { return yScale(d[0]); })
+          .outerRadius(function(d) {return yScale(d[1]); })
+          .startAngle(function(d) {return xScale(d.data.Label); })
+          .endAngle(function(d) { return xScale(d.data.Label) + xScale.bandwidth(); })
+          .padAngle(0.01)
+          .padRadius(innerRadius));
 }
 
   render() {
     return (
       <div>
-        <svg ref="fungraph"/>
+        <svg width={this.props.size[0]} height={this.props.size[1]} ref="fungraph"/>
       </div>
     );
   }
