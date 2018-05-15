@@ -15,6 +15,16 @@ const appdata = {
     'House 4',
     'House 5'
   ],
+  'production':[
+    {
+      'Cell Tower': 0,
+      'House 1': 0.7681000000000002,
+      'House 2': 0,
+      'House 3': 0.9049000000000001,
+      'House 4': 4.614199999999998,
+      'House 5': 2.057499999999999,
+    }
+  ],
   'cumulative-grid-trades':
     [
       {
