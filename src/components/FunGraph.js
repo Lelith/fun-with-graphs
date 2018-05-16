@@ -25,11 +25,12 @@ export default class FunGraph extends Component {
       cumulativeTrades = data['cumulative-grid-trades'],
       production = data['production'],
       areaNames = data.areas,
-      width = size[0],
-      height = size[1],
+      margin = {top: 50, right: 20, bottom: 30, left: 40},
+      width = size[0] - margin.left - margin.right,
+      height = size[1] - margin.top - margin.bottom,
       innerRadius = 100,
       outerRadius = Math.min(width, height) / 2,
-      g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+      g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + (height+margin.top+margin.bottom) / 2 + ")"),
       stackLayout = d3.stack().keys(areaNames);
 
     // calculate total of each stack
