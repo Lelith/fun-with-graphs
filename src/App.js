@@ -114,7 +114,7 @@ class App extends Component {
       <div className="App">
         <FunGraph
           data={appdata}
-          size={[950,600]}
+          size={[600,600]}
          />
       </div>
     );

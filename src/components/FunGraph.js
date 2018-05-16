@@ -27,7 +27,7 @@ export default class FunGraph extends Component {
       areaNames = data.areas,
       width = size[0],
       height = size[1],
-      innerRadius = 120,
+      innerRadius = 100,
       outerRadius = Math.min(width, height) / 2,
       g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
       stackLayout = d3.stack().keys(areaNames);
@@ -137,36 +137,53 @@ export default class FunGraph extends Component {
       productionData = this.props.data.production,
       areaNames = this.props.data.areas,
       dataMax = d3.max(productionData, d =>(d.kWh)),
-      barWidth = 500/ areaNames.length,
-      margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = 600 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom,
+      barWidth = production.attr("width")/ areaNames.length,
+      margin = {top: 50, right: 20, bottom: 30, left: 40},
+      width = production.attr("width") - margin.left - margin.right,
+      height = production.attr("height") - margin.top - margin.bottom,
       g = production.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    const xScale = d3.scaleBand()
+      .range([0, width])
+      .domain(productionData.map(function(d) { return d.Label; }))
+      .padding(0.1);
 
     const yScale = d3.scaleLinear()
       .domain([0, dataMax])
-      .range([0, 300]);
+      .range([height, 0]);
 
     const colorScale = this.createColorScale(areaNames);
 
-
-    console.log(productionData);
+    //draw bars
     g.selectAll("rect.bar")
     .data(productionData)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", (d,i) => i * barWidth)
-      .attr("y", d => {
-        console.log(d);
-        return (300 -  yScale(d.kWh))
-      })
-      .attr("height", d => yScale(d.kWh))
-      .attr("width", barWidth)
+      .attr("x", d => {return xScale(d.Label);})
+      .attr("y", d => {return yScale(d.kWh);})
+      .attr("height", d => {return height - yScale(d.kWh);})
+      .attr("width", xScale.bandwidth())
       .style("fill", d => colorScale(d.Label))
       .style("stroke", "black")
       .style("stroke-opacity", 0.25)
 
+      // axis
+      g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale));
+
+      g.append("g")
+       .attr("class", "axis axis--y")
+       .call(d3.axisLeft(yScale))
+       .append("text")
+         .attr("transform", "rotate(-90)")
+         .attr("y", 6)
+         .attr("dy", "0.71em")
+         .attr("text-anchor", "end")
+         .attr("fill", "#000")
+         .text("kWh");
 
   }
 
@@ -196,9 +213,18 @@ export default class FunGraph extends Component {
   render() {
     return (
       <div>
-        <svg ref="legend" />
-        <svg ref="production" height="400" width="600"/>
-        <svg width={this.props.size[0]} height={this.props.size[1]} ref="consumption"/>
+        <svg className="areaLegend" ref="legend" />
+        <svg
+          className="areaProduction"
+          ref="production"
+          width={this.props.size[0]} height={this.props.size[1]}
+        />
+        <svg
+          className="areaConsumption"
+          width={this.props.size[0]}
+          height={this.props.size[1]}
+          ref="consumption"
+        />
       </div>
     );
   }
