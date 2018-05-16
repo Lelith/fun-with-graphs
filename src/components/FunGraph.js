@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { legendColor } from 'd3-svg-legend';
 import * as d3 from 'd3';
 
+
+
 export default class FunGraph extends Component {
   componentDidMount() {
       this.createTradeChart();
@@ -12,6 +14,7 @@ export default class FunGraph extends Component {
   componentDidUpdate(){
     this.createTradeChart();
     this.drawLabels();
+    this.createProductionChart();
   }
 
   createTradeChart() {
@@ -57,7 +60,6 @@ export default class FunGraph extends Component {
 
     const colorScale = this.createColorScale(areaNames);
 
-    console.log(cumulativeTrades);
     // drawing the bars
     g.append("g")
       .selectAll("g")
@@ -69,6 +71,7 @@ export default class FunGraph extends Component {
       .data(function(d) { return d; })
       .enter()
       .append("path")
+        .attr("class", d => this.props.hoverElement === d.Label ? "hoverable active" : "hoverable")
         .attr("d", d3.arc()
           .innerRadius(function(d) { return yScale(d[0]); })
           .outerRadius(function(d) {return yScale(d[1]); })
@@ -141,9 +144,8 @@ export default class FunGraph extends Component {
       barWidth = production.attr("width")/ areaNames.length,
       margin = {top: 50, right: 20, bottom: 30, left: 40},
       width = production.attr("width") - margin.left - margin.right,
-      height = production.attr("height") - margin.top - margin.bottom,
-      g = production.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      height = production.attr("height") - margin.top - margin.bottom;
+
 
     const xScale = d3.scaleBand()
       .range([0, width])
@@ -156,11 +158,33 @@ export default class FunGraph extends Component {
 
     const colorScale = this.createColorScale(areaNames);
 
+
+    production.append("g")
+      .attr("class", "stage")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    production.selectAll("g")
+    .exit()
+    .remove();
+
+    const g = production.selectAll("g.stage");
+
+    g.selectAll("rect.bar")
+      .data(productionData)
+      .exit()
+        .remove();
+
     //draw bars
     g.selectAll("rect.bar")
     .data(productionData)
-    .enter().append("rect")
-      .attr("class", "bar")
+    .enter()
+      .append("rect")
+      .attr("class", d => this.props.hoverElement === d.Label ? "bar hoverable active" : "bar hoverable")
+      .on("mouseover", this.props.onMouseIn)
+      .on("mouseout", this.props.onMouseOut);
+
+    g.selectAll("rect.bar")
+    .data(productionData)
       .attr("x", d => {return xScale(d.Label);})
       .attr("y", d => {return yScale(d.kWh);})
       .attr("height", d => {return height - yScale(d.kWh);})
@@ -212,8 +236,15 @@ export default class FunGraph extends Component {
   }
 
   render() {
+    console.log(this.props.hoverElement);
+
+    var classes ="";
+      if (this.props.hoverElement !== 'none') {
+        classes = "hovered";
+      }
+
     return (
-      <div>
+      <div className={classes}>
         <svg className="areaLegend" ref="legend" />
         <svg
           className="areaProduction"

@@ -105,8 +105,21 @@ const appdata = {
 class App extends Component {
   constructor(props) {
     super(props);
+    this.onMouseIn = this.onMouseIn.bind(this)
+    this.onMouseOut = this.onMouseOut.bind(this)
+
+    this.state = {
+      hover: 'none'
+    }
   }
 
+  onMouseIn(d) {
+    this.setState({ hover: d.Label })
+  }
+
+  onMouseOut(){
+    this.setState({hover: 'none'})
+  }
 
   render() {
 
@@ -115,6 +128,7 @@ class App extends Component {
         <FunGraph
           data={appdata}
           size={[600,600]}
+          hoverElement={this.state.hover} onMouseIn={this.onMouseIn} onMouseOut={this.onMouseOut}
          />
       </div>
     );

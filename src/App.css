@@ -22,7 +22,6 @@
   font-size: large;
 }
 
-
 rect.overlay {
        opacity: 0;
 }
@@ -38,6 +37,14 @@ rect.overlay {
         stroke-width: 1;
         stroke: #75739F;
         fill: #5EAFC6;
+}
+
+.hovered .hoverable {
+  opacity: 0.3;
+}
+
+.hovered .hoverable.active {
+  opacity: 1;
 }
 
 @keyframes App-logo-spin {
