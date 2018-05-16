@@ -17,12 +17,29 @@ const appdata = {
   ],
   'production':[
     {
-      'Cell Tower': 0,
-      'House 1': 0.7681000000000002,
-      'House 2': 0,
-      'House 3': 0.9049000000000001,
-      'House 4': 4.614199999999998,
-      'House 5': 2.057499999999999,
+      'Label': 'Cell Tower',
+      'kWh': 0,
+    },
+    {
+      'Label': 'House 1',
+      'kWh': 0.7681000000000002,
+    },
+    {
+      'Label': 'House 2',
+      'kWh': 0,
+    },
+    {
+      'Label': 'House 3',
+      'kWh': 0.9049000000000001,
+
+    },
+    {
+      'Label': 'House 4',
+      'kWh': 4.614199999999998,
+    },
+    {
+      'Label': 'House 5',
+      'kWh': 2.057499999999999,
     }
   ],
   'cumulative-grid-trades':

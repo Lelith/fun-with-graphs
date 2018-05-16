@@ -3,29 +3,25 @@ import { legendColor } from 'd3-svg-legend';
 import * as d3 from 'd3';
 
 export default class FunGraph extends Component {
-  constructor(props) {
-    super(props);
-
-    this.createCharts = this.creatCharts.bind(this)
-  }
-
   componentDidMount() {
-      this.createCharts();
+      this.createTradeChart();
+      this.drawLabels();
+      this.createProductionChart();
   }
 
   componentDidUpdate(){
-    this.createCharts();
+    this.createTradeChart();
+    this.drawLabels();
   }
 
-  creatCharts() {
+  createTradeChart() {
     const {
       data,
       size,
     } = this.props;
 
-
     const
-      consumption = d3.select(this.refs.consumption), // svg
+      consumption = d3.select(this.refs.consumption), //
       cumulativeTrades = data['cumulative-grid-trades'],
       production = data['production'],
       areaNames = data.areas,
@@ -36,16 +32,16 @@ export default class FunGraph extends Component {
       g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
       stackLayout = d3.stack().keys(areaNames);
 
-      // calculate total of each stack
-      cumulativeTrades.map((area, i) => {
-        var t = 0;
-        for(var entry in area){
-          if(entry !=='Label'){
-              t += area[entry];
-          }
-          area.total = t;
+    // calculate total of each stack
+    cumulativeTrades.map((area, i) => {
+      var t = 0;
+      for(var entry in area){
+        if(entry !=='Label'){
+            t += area[entry];
         }
-      })
+        area.total = t;
+      }
+    })
 
     // scale functionality for x axis
     const xScale = d3.scaleBand()
@@ -58,13 +54,10 @@ export default class FunGraph extends Component {
       .range([innerRadius, outerRadius])
       .domain([0, d3.max(cumulativeTrades, function(d) { return d.total; })]);
 
-  // category scale for area colors
-    const colorScale = d3.scaleOrdinal()
-        .domain(areaNames)
-        .range(d3.schemeCategory20);
+    const colorScale = this.createColorScale(areaNames);
 
-
-  // drawing the bars
+    console.log(cumulativeTrades);
+    // drawing the bars
     g.append("g")
       .selectAll("g")
       .data(stackLayout(cumulativeTrades))
@@ -72,7 +65,7 @@ export default class FunGraph extends Component {
       .append("g")
         .attr("fill", d => colorScale(d.key))
       .selectAll("path")
-      .data(function(d) { console.log(d); return d; })
+      .data(function(d) { return d; })
       .enter()
       .append("path")
         .attr("d", d3.arc()
@@ -102,61 +95,110 @@ export default class FunGraph extends Component {
       .text(function(d) { return d.Label; });
 
     const yAxis = g.append("g")
-    .attr("text-anchor", "end");
+      .attr("text-anchor", "end");
 
     const yTick = yAxis
-    .selectAll("g")
-    .data(yScale.ticks(5).slice(1))
-    .enter().append("g");
+      .selectAll("g")
+      .data(yScale.ticks(5).slice(1))
+      .enter().append("g");
 
     yTick.append("circle")
-        .attr("fill", "none")
-        .attr("stroke", "#000")
-        .attr("stroke-opacity", 0.2)
-        .attr("r", yScale);
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-opacity", 0.2)
+      .attr("r", yScale);
 
     yTick.append("text")
-        .attr("x", -6)
-        .attr("y", function(d) { return -yScale(d); })
-        .attr("dy", "0.35em")
-        .attr("fill", "none")
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 5)
-        .text(yScale.tickFormat(10, "s"));
+      .attr("x", -6)
+      .attr("y", function(d) { return -yScale(d); })
+      .attr("dy", "0.35em")
+      .attr("fill", "none")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 5)
+      .text(yScale.tickFormat(10, "s"));
 
     yTick.append("text")
-        .attr("x", -6)
-        .attr("y", function(d) { return -yScale(d); })
-        .attr("dy", "0.35em")
-        .text(yScale.tickFormat(10, "s"));
+      .attr("x", -6)
+      .attr("y", function(d) { return -yScale(d); })
+      .attr("dy", "0.35em")
+      .text(yScale.tickFormat(10, "s"));
 
     yAxis.append("text")
-        .attr("x", -6)
-        .attr("y", function(d) { return -yScale(yScale.ticks(10).pop()); })
-        .attr("dy", "-1em")
-        .text("kWh");
+      .attr("x", -6)
+      .attr("y", function(d) { return -yScale(yScale.ticks(10).pop()); })
+      .attr("dy", "-1em")
+      .text("kWh");
+
+  }
+
+  createProductionChart(){
+    const
+      production = d3.select(this.refs.production),
+      productionData = this.props.data.production,
+      areaNames = this.props.data.areas,
+      dataMax = d3.max(productionData, d =>(d.kWh)),
+      barWidth = 500/ areaNames.length,
+      margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = 600 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom,
+      g = production.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+
+    const yScale = d3.scaleLinear()
+      .domain([0, dataMax])
+      .range([0, 300]);
+
+    const colorScale = this.createColorScale(areaNames);
 
 
-  const legend = legendColor()
-    .scale(colorScale)
-    .labels(areaNames);
+    console.log(productionData);
+    g.selectAll("rect.bar")
+    .data(productionData)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", (d,i) => i * barWidth)
+      .attr("y", d => {
+        console.log(d);
+        return (300 -  yScale(d.kWh))
+      })
+      .attr("height", d => yScale(d.kWh))
+      .attr("width", barWidth)
+      .style("fill", d => colorScale(d.Label))
+      .style("stroke", "black")
+      .style("stroke-opacity", 0.25)
+
+
+  }
+
+  drawLabels(){
+    const areaNames = this.props.data['areas'];
+    const colorScale = this.createColorScale(areaNames);
+
+    const legend = legendColor()
+      .scale(colorScale)
+      .labels(areaNames);
 
     d3.select(this.refs.legend)
-    .selectAll("g.legend__item")
-    .data([0])
-    .enter()
-    .append("g")
-    .attr("class", "legend__item")
-    .call(legend)
+      .selectAll("g.legend__item")
+      .data([0])
+      .enter()
+      .append("g")
+      .attr("class", "legend__item")
+      .call(legend)
+  }
 
-}
+  createColorScale(areaNames){
+    return d3.scaleOrdinal()
+     .domain(areaNames)
+     .range(d3.schemeCategory20);
+  }
 
   render() {
     return (
       <div>
         <svg ref="legend" />
+        <svg ref="production" height="400" width="600"/>
         <svg width={this.props.size[0]} height={this.props.size[1]} ref="consumption"/>
-        <svg ref="production" />
       </div>
     );
   }
