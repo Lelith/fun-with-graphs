@@ -33,6 +33,7 @@ export default class FunGraph extends Component {
       height = size[1] - margin.top - margin.bottom,
       innerRadius = 100,
       outerRadius = Math.min(width, height) / 2,
+
       g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + (height+margin.top+margin.bottom) / 2 + ")"),
       stackLayout = d3.stack().keys(areaNames);
 
@@ -59,6 +60,12 @@ export default class FunGraph extends Component {
       .domain([0, d3.max(cumulativeTrades, function(d) { return d.total; })]);
 
     const colorScale = this.createColorScale(areaNames);
+
+    g.append("g")
+      .selectAll("g")
+      .data(stackLayout(cumulativeTrades))
+      .exot()
+
 
     // drawing the bars
     g.append("g")

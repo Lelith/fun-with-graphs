@@ -4,18 +4,10 @@ import { range, scaleLinear, geoCentroid, interpolateRgb } from 'd3';
 
 import FunGraph from './components/FunGraph';
 
-const appdata = {
-  isRequesting: false,
-  unit: 'kWh',
-  areas: [
-    'Cell Tower',
-    'House 1',
-    'House 2',
-    'House 3',
-    'House 4',
-    'House 5'
-  ],
-  'production':[
+import ProductionChart from './components/ProductionChart';
+
+
+const productionData = [
     {
       'Label': 'Cell Tower',
       'kWh': 0,
@@ -41,7 +33,20 @@ const appdata = {
       'Label': 'House 5',
       'kWh': 2.057499999999999,
     }
-  ],
+  ];
+
+  const areaNames = [
+    'Cell Tower',
+    'House 1',
+    'House 2',
+    'House 3',
+    'House 4',
+    'House 5'
+  ];
+const appdata = {
+  isRequesting: false,
+  unit: 'kWh',
+
   'cumulative-grid-trades':
     [
       {
@@ -115,6 +120,7 @@ class App extends Component {
 
   onMouseIn(d) {
     this.setState({ hover: d.Label })
+    console.log("hover?");
   }
 
   onMouseOut(){
@@ -125,11 +131,14 @@ class App extends Component {
 
     return (
       <div className="App">
-        <FunGraph
-          data={appdata}
-          size={[600,600]}
-          hoverElement={this.state.hover} onMouseIn={this.onMouseIn} onMouseOut={this.onMouseOut}
-         />
+        <ProductionChart
+          areaNames = {areaNames}
+          productionData = {productionData}
+          size={
+            {width:600,
+            height:600,}
+          }
+        />
       </div>
     );
   }
