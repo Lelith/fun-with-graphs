@@ -25,7 +25,7 @@ export default class Axis extends Component {
   }
 
   render() {
-
+    console.log(this.props.translate);
     return (
       <g
         className={`Axis Axis-${this.props.orient}`}

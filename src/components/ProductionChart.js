@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { legendColor } from 'd3-svg-legend';
-import * as d3 from 'd3';
+import { scaleBand, scaleLinear } from 'd3-scale'
 
 import Axes from './Axes';
+import Bars from './Bars';
 
 export default class ProductionChart extends Component {
   constructor(props) {
     super(props);
 
-    this.xScale = d3.scaleBand();
-    this.yScale = d3.scaleLinear();
+    this.xScale = scaleBand();
+    this.yScale = scaleLinear();
   }
 
   render() {
@@ -22,30 +23,41 @@ export default class ProductionChart extends Component {
     } = this.props;
 
     const
-      dataMax = d3.max(productionData, d =>(d.kWh)),
+      dataMax = Math.max(...productionData.map(d => d.kWh )),
       width = this.props.size.width - margins.left - margins.right,
-      height = this.props.height - margins.top - margins.bottom;
+      height = this.props.size.height - margins.top - margins.bottom;
 
+    console.log(dataMax);
     const xScale = this.xScale
-      .range([0, width])
+      .padding(0.5)
       .domain(productionData.map(d => d.Label))
-      .padding(0.5);
+      .range([margins.left, width])
 
     const yScale = this.yScale
       .domain([0, dataMax])
-      .range([height, 0]);
+      .range([height, margins.top]);
 
 
     return (
       <svg
         className="areaProduction"
         ref={node => this.node = node }
-        width={size.width} height={size.height}
+        width={size.width}
+        height={size.height}
       >
         <Axes
           scales={{ xScale, yScale }}
           margins={margins}
           svgDimensions={size}
+        />
+
+        <Bars
+          scales={{ xScale, yScale }}
+          size = {size}
+          data = {productionData}
+          labels = {areaNames}
+          maxValue = {dataMax}
+          margins = {margins}
         />
       </svg>
           );
