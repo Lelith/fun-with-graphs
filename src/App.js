@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import './App.css';
-import { range, scaleLinear, geoCentroid, interpolateRgb } from 'd3';
-
-import FunGraph from './components/FunGraph';
 
 import ProductionChart from './components/ProductionChart';
+import TradeChart from './components/TradeChart';
 
+const appdata = {
+  isRequesting: false,
+  unit: 'kWh',
+};
 
 const productionData = [
     {
@@ -43,11 +45,8 @@ const productionData = [
     'House 4',
     'House 5'
   ];
-const appdata = {
-  isRequesting: false,
-  unit: 'kWh',
 
-  'cumulative-grid-trades':
+const cumulativeGridTrades =
     [
       {
         'Label': 'Cell Tower',
@@ -104,23 +103,32 @@ const appdata = {
         'House 3': 0.1465,
         'House 4': 0.8728,
       }
-    ],
-  }
+    ];
+
+    cumulativeGridTrades.map((area, i) => {
+      var t = 0;
+      for(var entry in area){
+        if(entry !=='Label'){
+            t += area[entry];
+        }
+        area.total = t;
+      }
+    })
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.onMouseIn = this.onMouseIn.bind(this)
-    this.onMouseOut = this.onMouseOut.bind(this)
 
     this.state = {
       hover: 'none'
     }
+
+    this.onMouseIn = this.onMouseIn.bind(this)
+    this.onMouseOut = this.onMouseOut.bind(this)
   }
 
-  onMouseIn(d) {
-    this.setState({ hover: d.Label })
-    console.log("hover?");
+  onMouseIn(hoverElement) {
+    this.setState({ hover: hoverElement })
   }
 
   onMouseOut(){
@@ -134,6 +142,20 @@ class App extends Component {
         <ProductionChart
           areaNames = {areaNames}
           productionData = {productionData}
+          size={
+            {width:600,
+            height:600,}
+          }
+          hoverElement={this.state.hover}
+          onMouseIn={this.onMouseIn}
+          onMouseOut={this.onMouseOut}
+        />
+        <TradeChart
+          areaNames = {areaNames}
+          cumulativeTrades = {cumulativeGridTrades}
+          hoverElement={this.state.hover}
+          onMouseIn={this.onMouseIn}
+          onMouseOut={this.onMouseOut}
           size={
             {width:600,
             height:600,}

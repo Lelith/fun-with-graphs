@@ -64,7 +64,7 @@ export default class FunGraph extends Component {
     g.append("g")
       .selectAll("g")
       .data(stackLayout(cumulativeTrades))
-      .exot()
+      .exit()
 
 
     // drawing the bars
@@ -87,15 +87,15 @@ export default class FunGraph extends Component {
           .padAngle(0.01)
           .padRadius(innerRadius));
 
-          const label = g.append("g")
-            .selectAll("g")
-            .data(cumulativeTrades)
-            .enter()
-            .append("g")
-            .attr("text-anchor", "middle")
-            .attr("transform", (d) => {
-              return "rotate(" + ((xScale(d.Label) + xScale.bandwidth() / 2) * 180 / Math.PI - 90) + ")translate(" + innerRadius + ",0)";
-            });
+      const label = g.append("g")
+        .selectAll("g")
+        .data(cumulativeTrades)
+        .enter()
+        .append("g")
+        .attr("text-anchor", "middle")
+        .attr("transform", (d) => {
+          return "rotate(" + ((xScale(d.Label) + xScale.bandwidth() / 2) * 180 / Math.PI - 90) + ")translate(" + innerRadius + ",0)";
+        });
 
     label.append("line")
       .attr("x2", -5)

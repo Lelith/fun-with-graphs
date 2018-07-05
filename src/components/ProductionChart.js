@@ -1,42 +1,51 @@
-import React, { Component } from 'react';
-import { legendColor } from 'd3-svg-legend';
-import { scaleBand, scaleLinear } from 'd3-scale'
+import React  from 'react';
+import * as d3 from 'd3';
+import * as scale from 'd3-scale-chromatic'
 
 import Axes from './Axes';
-import Bars from './Bars';
 
-export default class ProductionChart extends Component {
-  constructor(props) {
-    super(props);
-
-    this.xScale = scaleBand();
-    this.yScale = scaleLinear();
-  }
-
-  render() {
+const ProductionChart = (props) =>{
     const margins = {top: 50, right: 20, bottom: 50, left: 40};
 
     const {
       productionData,
       areaNames,
       size
-    } = this.props;
+    } = props;
 
     const
       dataMax = Math.max(...productionData.map(d => d.kWh )),
-      width = this.props.size.width - margins.left - margins.right,
-      height = this.props.size.height - margins.top - margins.bottom;
+      width = size.width - margins.left - margins.right,
+      height = size.height - margins.top - margins.bottom;
 
-    console.log(dataMax);
-    const xScale = this.xScale
+    const xScale = d3.scaleBand()
       .padding(0.5)
       .domain(productionData.map(d => d.Label))
-      .range([margins.left, width])
+      .range([margins.left, width]);
 
-    const yScale = this.yScale
+    const yScale = d3.scaleLinear()
       .domain([0, dataMax])
-      .range([height, margins.top]);
+      .range([height, 0]);
 
+    const colorScale = d3.scaleOrdinal()
+      .domain(areaNames)
+      .range(scale.schemeBuPu[areaNames.length]);
+
+    const bars =(
+      productionData.map(d =>
+        <rect
+        key = {d.Label}
+        x = {xScale(d.Label)}
+        y = {yScale(d.kWh)}
+        height={size.height - margins.bottom - yScale(d.kWh)}
+        width={xScale.bandwidth()}
+        fill = {colorScale(d.Label)}
+        className = {props.hoverElement === d.Label? "bar hoverable active": "har hoverable"}
+        onMouseOver= {() => {props.onMouseIn(d.Label)}}
+        onMouseOut={()=>{props.onMouseOut()}}
+        />
+      )
+    );
 
     return (
       <svg
@@ -50,16 +59,8 @@ export default class ProductionChart extends Component {
           margins={margins}
           svgDimensions={size}
         />
-
-        <Bars
-          scales={{ xScale, yScale }}
-          size = {size}
-          data = {productionData}
-          labels = {areaNames}
-          maxValue = {dataMax}
-          margins = {margins}
-        />
+        {bars}
       </svg>
-          );
+    );
   }
-}
+export default ProductionChart;
