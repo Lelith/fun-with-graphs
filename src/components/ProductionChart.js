@@ -37,7 +37,7 @@ const ProductionChart = (props) =>{
         key = {d.Label}
         x = {xScale(d.Label)}
         y = {yScale(d.kWh)}
-        height={size.height - margins.bottom - yScale(d.kWh)}
+        height={height - yScale(d.kWh)}
         width={xScale.bandwidth()}
         fill = {colorScale(d.Label)}
         className = {props.hoverElement === d.Label? "bar hoverable active": "har hoverable"}
