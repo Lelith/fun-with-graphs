@@ -27,7 +27,8 @@ export default class TradeChart extends Component {
     const {
       cumulativeTrades,
       areaNames,
-      size
+      size,
+      hoverElement,
     } = this.props;
 
     const
@@ -59,24 +60,43 @@ export default class TradeChart extends Component {
     // drawing the bars
     const g = consumption.append("g").attr("transform", "translate(" + width / 2 + "," + (height+margins.top+margins.bottom) / 2 + ")");
 
-    g.append("g")
+  const columns = g.append("g")
       .selectAll("g")
       .data(stackLayout(cumulativeTrades))
       .enter()
       .append("g")
+        .attr("key", d => d.key.Label)
         .attr("fill", d => colorScale(d.key))
-        .attr("class", d => this.props.hoverElement === d.key ? "hoverable active" : "hoverable")
-      .selectAll("path")
-      .data(function(d) {return d })
-      .enter()
-      .append("path")
-        .attr("d", d3.arc()
-          .innerRadius(d => yScale(d[0]))
-          .outerRadius(d => yScale(d[1]))
-          .startAngle(d => xScale(d.data.Label))
-          .endAngle(d => xScale(d.data.Label) + xScale.bandwidth())
-          .padAngle(0.01)
-          .padRadius(innerRadius));
+        .attr("class", d => hoverElement === d.key ? "hoverable active" : "hoverable");
+
+
+      const bars =
+        columns.selectAll("path")
+        .data(function(d) {return d })
+        .enter()
+        .append("g");
+
+        bars
+        .append("path")
+            .attr("d", d3.arc()
+              .innerRadius(d => yScale(d[0]))
+              .outerRadius(d => yScale(d[1]))
+              .startAngle(d => xScale(d.data.Label))
+              .endAngle(d => xScale(d.data.Label) + xScale.bandwidth())
+              .padAngle(0.01)
+              .padRadius(innerRadius));
+      bars
+      .append("g")
+      .attr("text-anchor","middle")
+      .attr("transform", (d) => {
+        return "rotate(" + ((xScale(d.data.Label) + xScale.bandwidth() / 2) * 180 / Math.PI - 90) + ")translate(" + yScale(d[1]) + ",0)";
+      })
+      .append("text")
+        .text(d => d[1].toPrecision(2))
+        .attr("transform", function(d) { return (xScale(d.data.Label) + xScale.bandwidth() / 2 + Math.PI / 2) % (2 * Math.PI) < Math.PI ? "rotate(90)translate(0,16)" : "rotate(-90)translate(0,-15)"; })
+        .attr("fill", "#000")
+
+
 
       const label =
         g.append("g")
@@ -141,13 +161,14 @@ export default class TradeChart extends Component {
       }
 
     return (
-      <svg
-          className="areaConsumption"
-          width={this.props.size.width}
-          height={this.props.size.height}
-          ref="consumption"
-          className={classes}
-        />
+        <svg
+            className="areaConsumption"
+            width={this.props.size.width}
+            height={this.props.size.height}
+            ref="consumption"
+            className={classes}
+          >
+          </svg>
     );
   }
 }

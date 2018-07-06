@@ -41,7 +41,7 @@ const ProductionChart = (props) =>{
         width={xScale.bandwidth()}
         fill = {colorScale(d.Label)}
         className = {props.hoverElement === d.Label? "bar hoverable active": "har hoverable"}
-        onMouseOver= {() => {props.onMouseIn(d.Label)}}
+        onMouseOver={() => {props.onMouseIn(d)}}
         onMouseOut={()=>{props.onMouseOut()}}
         />
       )

@@ -46,6 +46,13 @@ rect.overlay {
 .hovered .hoverable.active {
   opacity: 1;
 }
+.hoverable text {
+  opacity: 0;
+  }
+  
+.hovered .hoverable.active text {
+opacity: 1;
+}
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }

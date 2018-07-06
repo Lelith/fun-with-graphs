@@ -128,7 +128,7 @@ class App extends Component {
   }
 
   onMouseIn(hoverElement) {
-    this.setState({ hover: hoverElement })
+    this.setState({ hover: hoverElement.Label })
   }
 
   onMouseOut(){
@@ -154,8 +154,6 @@ class App extends Component {
           areaNames = {areaNames}
           cumulativeTrades = {cumulativeGridTrades}
           hoverElement={this.state.hover}
-          onMouseIn={this.onMouseIn}
-          onMouseOut={this.onMouseOut}
           size={
             {width:600,
             height:600,}
