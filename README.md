@@ -1,3 +1,3 @@
 ### Fun with Graphs
 
-a try of implementing graphs based on d3.js
+implementing some graphs in react with d3js
