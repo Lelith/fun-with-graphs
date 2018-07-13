@@ -22,6 +22,38 @@
   font-size: large;
 }
 
+rect.overlay {
+       opacity: 0;
+}
+     rect.selection {
+       fill: #FE9922;
+       opacity: 0.5;
+}
+     rect.handle {
+       fill: #FE9922;
+       opacity: 0.25;
+}
+     path.countries {
+        stroke-width: 1;
+        stroke: #75739F;
+        fill: #5EAFC6;
+}
+
+.hovered .hoverable {
+  opacity: 0.3;
+}
+
+.hovered .hoverable.active {
+  opacity: 1;
+}
+.hoverable text {
+  opacity: 0;
+  }
+  
+.hovered .hoverable.active text {
+opacity: 1;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
